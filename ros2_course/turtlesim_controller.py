@@ -84,74 +84,45 @@ class TurtlesimController(Node):
 
 
     def turn(self, omega, angle):
-            # Implement straght motion here
-            # Create and publish msg
-            vel_msg = Twist()
+        # Implement proportional regulator for turning
+        vel_msg = Twist()
 
-            vel_msg.linear.x = 0.0
-            vel_msg.linear.y = 0.0
-            vel_msg.linear.z = 0.0
-            vel_msg.angular.x = 0.0
-            vel_msg.angular.y = 0.0
-            if angle > 0:
-                vel_msg.angular.z = math.radians(omega)
-            else:
-                vel_msg.angular.z = -math.radians(omega)
+        vel_msg.linear.x = 0.0
+        vel_msg.linear.y = 0.0
+        vel_msg.linear.z = 0.0
+        vel_msg.angular.x = 0.0
+        vel_msg.angular.y = 0.0
 
+        # Proportional regulator parameters
+        Kp = 0.1  # You can adjust this value based on your system's characteristics
 
-            # Set loop rate
-            loop_rate = self.create_rate(100, self.get_clock()) # Hz
+        # Calculate proportional control signal
+        angular_error = angle
+        angular_velocity = Kp * angular_error
 
-            # Calculate time
-            T = abs(angle / omega)
+        if angular_error > 0:
+            vel_msg.angular.z = math.radians(min(omega, angular_velocity))
+        else:
+            vel_msg.angular.z = -math.radians(min(omega, abs(angular_velocity)))
 
-            # Publish first msg and note time when to stop
+        # Set loop rate
+        loop_rate = self.create_rate(100, self.get_clock())  # Hz
+
+        # Calculate time
+        T = abs(angle / omega)
+
+        # Publish first msg and note time when to stop
+        self.twist_pub.publish(vel_msg)
+        when = self.get_clock().now() + rclpy.time.Duration(seconds=T)
+
+        # Publish msg while the calculated time is up
+        while (self.get_clock().now() <= when) and rclpy.ok():
             self.twist_pub.publish(vel_msg)
-            #self.get_logger().info('Turtle started.')
-            when = self.get_clock().now() + rclpy.time.Duration(seconds=T)
+            rclpy.spin_once(self)  # loop rate
 
-            # Publish msg while the calculated time is up
-            while (self.get_clock().now() <= when) and rclpy.ok():
-                self.twist_pub.publish(vel_msg)
-                #self.get_logger().info('On its way...')
-                rclpy.spin_once(self)   # loop rate
-
-            # turtle arrived, set velocity to 0
-            vel_msg.angular.z = 0.0
-            self.twist_pub.publish(vel_msg)
-            #self.get_logger().info('Arrived to destination.')
-            vel_msg.linear.x = 0.0
-            vel_msg.linear.y = 0.0
-            vel_msg.linear.z = 0.0
-            vel_msg.angular.x = 0.0
-            vel_msg.angular.y = 0.0
-            if angle > 0:
-                vel_msg.angular.z = math.radians(omega)
-            else:
-                vel_msg.angular.z = -math.radians(omega)
-
-
-            # Set loop rate
-            loop_rate = self.create_rate(100, self.get_clock()) # Hz
-
-            # Calculate time
-            T = abs(angle / omega)
-
-            # Publish first msg and note time when to stop
-            self.twist_pub.publish(vel_msg)
-            #self.get_logger().info('Turtle started.')
-            when = self.get_clock().now() + rclpy.time.Duration(seconds=T)
-
-            # Publish msg while the calculated time is up
-            while (self.get_clock().now() <= when) and rclpy.ok():
-                self.twist_pub.publish(vel_msg)
-                #self.get_logger().info('On its way...')
-                rclpy.spin_once(self)   # loop rate
-
-            # turtle arrived, set velocity to 0
-            vel_msg.angular.z = 0.0
-            self.twist_pub.publish(vel_msg)
-            #self.get_logger().info('Arrived to destination.')
+        # Turtle arrived, set velocity to 0
+        vel_msg.angular.z = 0.0
+        self.twist_pub.publish(vel_msg)
 
     def draw_poly(self, speed, omega, N, a):
 

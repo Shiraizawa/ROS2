@@ -12,4 +12,4 @@ How to *build* and use the package.
     colcon build --symlink-install
 Calculation of rotation speed:
 
-![Rotation speed calculation](https://github.com/Shiraizawa/ROS2/blob/main/image.png?raw=true)
+![Rotation speed calculation](https://github.com/Shiraizawa/ROS2/blob/main/image.png?raw=true) where x = error

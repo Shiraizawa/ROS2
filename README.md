@@ -11,4 +11,4 @@ How to *build* and use the package.
     cd ~/ros2_ws
     colcon build --symlink-install
 
-![alt text](https://github.com/[Shiraizawa]/[ROS2]/blob/[branch]/image.jpg?raw=true)
+![Rotation speed calculation](https://github.com/[Shiraizawa]/[ROS2]/blob/[branch]/image.png?raw=true)

@@ -11,7 +11,7 @@ How to *build* and use the package.
     cd ros2_ws
     colcon build --symlink-install
 
-    
+    ros2 run turtlesim turtlesim_node
     ros2 run ros2_course turtlesim_controller
     
 Calculation of rotation speed:
